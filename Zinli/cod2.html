@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zinli - Autenticación de 2 Factores</title>
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <style>
+        :root {
+            --purple-primary: #5A2D82;
+            --purple-disabled: #E4DAFD;
+            --purple-disabled-text: #BCA9EE;
+            --purple-active: #481F6E;
+            --error-red: #E53935;
+            --text-dark: #2A2A2A;
+            --text-muted: #6E6E6E;
+            --border-color: #79747E;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #F8F9FA;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Contenedor principal responsive */
+        .app-container {
+            width: 100%;
+            max-width: 440px;
+            height: 100vh;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px 28px;
+        }
+
+        /* En PC se centra como tarjeta */
+        @media (min-width: 600px) {
+            .app-container {
+                height: 90vh;
+                max-height: 750px;
+                border-radius: 24px;
+                box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.08);
+            }
+        }
+
+        /* Encabezado */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-top: 8px;
+        }
+
+        .back-icon {
+            color: var(--text-dark);
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        header h1 {
+            font-size: 18px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        /* Contenido del formulario */
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            margin-top: -30px;
+        }
+
+        .title-group {
+            margin-bottom: 20px;
+        }
+
+        .title-group h2 {
+            font-size: 18px;
+            color: var(--purple-primary);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .title-group p {
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        /* Inputs de código */
+        .code-inputs {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+            margin: 25px 0 0 0;
+        }
+
+        .code-input {
+            width: 42px;
+            height: 48px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-dark);
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            outline: none;
+            background: transparent;
+            transition: border-color 0.2s;
+        }
+
+        .code-input.has-error {
+            border-bottom-color: var(--error-red);
+        }
+
+        .code-input:focus {
+            border-bottom-color: var(--purple-primary);
+        }
+
+        /* Mensaje de Error con separación holgada de los inputs y del botón */
+        .error-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--error-red);
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 18px;
+            margin-bottom: 24px;
+            width: 100%;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .error-message.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .error-message .material-symbols-outlined {
+            font-size: 18px;
+        }
+
+        /* Botón Continuar */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--purple-disabled);
+            color: var(--purple-disabled-text);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-submit.active {
+            background-color: var(--purple-primary);
+            color: #FFFFFF;
+            cursor: pointer;
+        }
+
+        .btn-submit.active:hover {
+            background-color: var(--purple-active);
+        }
+
+        /* Sección de reenvío de código */
+        .resend-section {
+            width: 100%;
+            text-align: center;
+            margin-top: 45px;
+        }
+
+        .resend-section p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .timer {
+            font-size: 16px;
+            color: var(--text-dark);
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .btn-resend {
+            background: none;
+            border: none;
+            color: var(--purple-disabled-text);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            cursor: not-allowed;
+            transition: color 0.3s;
+        }
+
+        .btn-resend.active {
+            color: var(--purple-primary);
+            cursor: pointer;
+        }
+
+        .btn-resend.active:hover {
+            color: var(--purple-active);
+        }
+
+        footer {
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Encabezado con flecha de retroceso y título -->
+        <header>
+            <span class="material-symbols-outlined back-icon" onclick="history.back()">arrow_back_ios</span>
+            <h1>Autenticación de 2 factores</h1>
+        </header>
+
+        <!-- Formulario de Código -->
+        <main class="content">
+            <form id="otpForm" style="width: 100%;">
+                <div class="title-group">
+                    <h2>Revisa tu correo registrado</h2>
+                    <p>Enviamos un código de verificación a tu correo registrado</p>
+                    <p>Ingresa el código que recibiste</p>
+                </div>
+
+                <!-- Casillas de verificación (6 dígitos) -->
+                <div class="code-inputs">
+                    <input type="text" maxlength="1" class="code-input has-error" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" required>
+                    <input type="text" maxlength="1" class="code-input has-error" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="code-input has-error" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="code-input has-error" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="code-input has-error" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="code-input has-error" inputmode="numeric" pattern="[0-9]*">
+                </div>
+
+                <!-- Mensaje de Código Incorrecto con espacio holgado -->
+                <div class="error-message" id="errorMessage">
+                    <span class="material-symbols-outlined">error</span>
+                    <span>Código incorrecto. Inténtalo de nuevo.</span>
+                </div>
+
+                <!-- Botón Continuar -->
+                <button type="submit" id="btnSubmit" class="btn-submit" disabled>CONTINUAR</button>
+
+                <!-- Sección de reenvío -->
+                <div class="resend-section">
+                    <p>Podrás solicitar otro código en</p>
+                    <div class="timer" id="timer">01:24</div>
+                    <button type="button" id="btnResend" class="btn-resend" disabled>Enviar otro código</button>
+                </div>
+            </form>
+        </main>
+
+        <footer></footer>
+    </div>
+
+    <script src="data.js"></script>
+
+    <!-- Script para ocultar mensaje de error, navegación e interacción -->
+    <script>
+        const inputs = document.querySelectorAll('.code-input');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const timerDisplay = document.getElementById('timer');
+        const btnResend = document.getElementById('btnResend');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Ocultar mensaje de error al interactuar con los inputs
+        function hideError() {
+            if (!errorMessage.classList.contains('hidden')) {
+                errorMessage.classList.add('hidden');
+                inputs.forEach(input => input.classList.remove('has-error'));
+            }
+        }
+
+        // Manejo dinámico de los inputs del código OTP
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                hideError(); // Ocultar el mensaje al escribir
+                const value = e.target.value;
+                if (value && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                checkCompleteCode();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                hideError(); // Ocultar el mensaje al borrar
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Activa el botón Continuar si los 6 campos tienen un dígito
+        function checkCompleteCode() {
+            let code = '';
+            inputs.forEach(input => code += input.value.trim());
+
+            if (code.length === 6) {
+                btnSubmit.classList.add('active');
+                btnSubmit.removeAttribute('disabled');
+            } else {
+                btnSubmit.classList.remove('active');
+                btnSubmit.setAttribute('disabled', 'true');
+            }
+        }
+
+        // Temporizador de cuenta regresiva
+        let totalSeconds = 84;
+        const countdown = setInterval(() => {
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = totalSeconds % 60;
+
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (totalSeconds <= 0) {
+                clearInterval(countdown);
+                timerDisplay.textContent = "00:00";
+                btnResend.classList.add('active');
+                btnResend.removeAttribute('disabled');
+            } else {
+                totalSeconds--;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

